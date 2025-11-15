@@ -1,1 +1,81 @@
-/* Adicione seus estilos para MovieDetail aqui */
+.movie-detail-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #181818;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px #000a;
+  color: #fff;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.back-button {
+  background: #ffd700;
+  color: #222;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 24px;
+  transition: background 0.2s;
+}
+.back-button:hover {
+  background: #ffbb00;
+}
+
+.movie-detail-card {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+.movie-detail-poster {
+  width: 230px;
+  min-width: 180px;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px #0007;
+  object-fit: cover;
+}
+.movie-detail-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.movie-detail-title {
+  font-size: 2.3rem;
+  margin-bottom: 8px;
+  font-weight: 700;
+  color: #ffd700;
+  text-shadow: 0 2px 8px #222a;
+}
+.movie-detail-rating {
+  font-size: 1.2rem;
+  margin-bottom: 24px;
+  background: #222;
+  color: #ffd700;
+  border-radius: 8px;
+  padding: 6px 16px;
+  box-shadow: 0 2px 8px #0004;
+}
+
+.movie-detail-sinopse-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #57ffae;
+}
+
+.movie-detail-overview {
+  font-size: 1.09rem;
+  line-height: 1.54;
+  margin-bottom: 12px;
+  color: #eee;
+}
+.movie-detail-loading {
+  color: #ffd700;
+  font-size: 1.5rem;
+  padding: 30px;
+  text-align: center;
+}

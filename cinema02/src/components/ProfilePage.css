@@ -1,0 +1,112 @@
+.profilepage-bg {
+  background: linear-gradient(120deg, #191970 80%, #3b2365 100%);
+  min-height: 100vh;
+  width: 100%;
+  padding-top: 50px;
+}
+
+.profilepage-container {
+  max-width: 430px;
+  margin: auto;
+  border-radius: 18px;
+  box-shadow: 0 10px 34px #000b;
+  background: #222;
+  padding: 40px 34px;
+}
+
+.profilepage-title {
+  color: #ffd700;
+  font-size: 2.1rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.profilepage-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profilepage-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 3px solid #ffd700;
+  object-fit: cover;
+  margin-bottom: 26px;
+  box-shadow: 0 4px 16px #ffd70088;
+}
+
+.profilepage-info {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+}
+
+.profilepage-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.12rem;
+  margin-bottom: 6px;
+}
+
+.profilepage-label {
+  font-weight: bold;
+  color: #57ffae;
+}
+.profilepage-value {
+  color: #fafad2;
+}
+
+.profilepage-editbtn, .profilepage-logoutbtn {
+  margin-top: 12px;
+  padding: 10px 32px;
+  border: none;
+  border-radius: 7px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #ffd70033;
+  transition: background 0.2s, color 0.2s;
+  width: calc(100% - 26px);
+}
+
+.profilepage-editbtn {
+  background: #ffd700;
+  color: #222;
+  margin-bottom: 6px;
+}
+.profilepage-editbtn:hover {
+  background: #c7c900;
+}
+
+.profilepage-logoutbtn {
+  background: #444;
+  color: #ffd700;
+}
+.profilepage-logoutbtn:hover {
+  background: #802020;
+  color: #fff;
+}
+.profilepage-prodbtn {
+  margin-top: 16px;
+  background: #57ffae;
+  color: #222;
+  padding: 11px 32px;
+  border: none;
+  border-radius: 7px;
+  font-weight: bold;
+  font-size: 1.06rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #57ffae60;
+  transition: background 0.2s, color 0.2s;
+  width: calc(100% - 26px);
+}
+.profilepage-prodbtn:hover {
+  background: #23ea7c;
+  color: #fff;
+}

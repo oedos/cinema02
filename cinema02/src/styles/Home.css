@@ -1,0 +1,94 @@
+.filmes-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;   /* Espaçamento entre os filmes */
+  list-style: none; /* Tira os pontinhos da lista */
+  padding: 0;
+}
+
+.filme-card {
+  background: #222;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px #000a;
+  width: 220px;
+  min-width: 180px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.filme-card img {
+  width: 140px;
+  height: 210px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+.filme-card strong {
+  margin-bottom: 6px;
+  font-size: 1.07em;
+}
+.filme-card p {
+  font-size: 0.97em;
+  margin: 0 0 8px 0;
+}
+.filme-card a {
+  margin-top: 10px;
+  background: #ffd700;
+  color: #222;
+  border-radius: 6px;
+  padding: 6px 16px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background .2s;
+}
+.filme-card a:hover {
+  background: #ffbb00;
+}
+.titulo-slogan-box {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.cinema02-titulo {
+  font-size: 3.2rem;
+  font-weight: bold;
+  color: #ffd700;
+  letter-spacing: .07em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  text-shadow: 0 4px 22px #2229, 0 0px 3px #ffecb3;
+}
+
+.cinema02-gradient {
+  background: linear-gradient(90deg, #ffd700 40%, #fff200 60%, #fd67ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShine 2.3s linear infinite;
+}
+
+@keyframes gradientShine {
+  0% {background-position: 0 50%;}
+  100% {background-position: 100% 50%;}
+}
+
+.emoji-filme {
+  font-size: 2.2rem;
+  vertical-align: sub;
+  filter: drop-shadow(0 2px 3px #c300ff88);
+}
+
+.cinema02-slogan {
+  font-size: 1.25rem;
+  color: #fafacd;
+  text-shadow: 0 2px 8px #6e3bf1b5;
+  margin-bottom: 8px;
+  line-height: 1.43;
+  font-weight: 400;
+}
