@@ -68,3 +68,52 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+oi 
+teste de banco
+-- Tabela de usuários/produtores
+CREATE TABLE usuarios (
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  email VARCHAR(120) UNIQUE NOT NULL,
+  senha_hash VARCHAR(150) NOT NULL,
+  avatar_url VARCHAR(250),
+  tipo_usuario VARCHAR(20) DEFAULT 'produtor', -- Ex: produtor, admin
+  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de filmes cadastrados
+CREATE TABLE filmes (
+  id SERIAL PRIMARY KEY,
+  produtor_id INTEGER NOT NULL,
+  titulo VARCHAR(120) NOT NULL,
+  descricao TEXT,
+  midia_url VARCHAR(300),
+  midia_tipo VARCHAR(20), -- 'image', 'video'
+  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (produtor_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- Tabela para anexar mais arquivos/mídias ao filme (opcional)
+CREATE TABLE filmes_midias (
+  id SERIAL PRIMARY KEY,
+  filme_id INTEGER NOT NULL,
+  arquivo_url VARCHAR(300),
+  tipo VARCHAR(20),
+  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (filme_id) REFERENCES filmes(id) ON DELETE CASCADE
+);
+
+-- (Opcional) Tabela de avaliações dos filmes
+CREATE TABLE avaliacoes (
+  id SERIAL PRIMARY KEY,
+  filme_id INTEGER NOT NULL,
+  usuario_id INTEGER NOT NULL,
+  nota INTEGER CHECK (nota >= 0 AND nota <= 10),
+  comentario TEXT,
+  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (filme_id) REFERENCES filmes(id) ON DELETE CASCADE,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+);
