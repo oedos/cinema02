@@ -1,20 +1,21 @@
-// Exporta o Firestore para usar no resto do app
-export const db = getFirestore(app);
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAZ0UFz-PUQiKifHz8FUevwU1xVxZ9gBHA",
-  authDomain: "stagpoint-b4b0b-d9654.firebaseapp.com",
-  databaseURL: "https://stagpoint-b4b0b-d9654-default-rtdb.firebaseio.com",
-  projectId: "stagpoint-b4b0b-d9654",
-  storageBucket: "stagpoint-b4b0b-d9654.firebasestorage.app",
-  messagingSenderId: "1071076897999",
-  appId: "1:1071076897999:web:553f8ba917b296657eb3ba"
+  apiKey: "AIzaSyAg28Ccc7vj7l06a4PUGDfCo_DvVBfjG-k",
+  authDomain: "cineclipse-10c65.firebaseapp.com",
+  projectId: "cineclipse-10c65",
+  storageBucket: "cineclipse-10c65.firebasestorage.app",
+  messagingSenderId: "785062891914",
+  appId: "1:785062891914:web:2e49f255e726c869553873",
+  measurementId: "G-HKYMJ63KRZ"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
