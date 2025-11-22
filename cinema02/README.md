@@ -117,3 +117,6 @@ CREATE TABLE avaliacoes (
   FOREIGN KEY (filme_id) REFERENCES filmes(id) ON DELETE CASCADE,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
 );
+
+firebase
+npm install firebase
