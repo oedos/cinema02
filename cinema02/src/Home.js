@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import './styles/Home.css';
 import ProfileBox from './components/ProfileBox';
 
+
 const filmesDestaque = [
   { id: 157336, titulo: 'Interestelar', descricao: 'Viagem pelo espaço e tempo.', imagem: '/images/4238-cartaz.jpg' },
   { id: 911430, titulo: 'F1: O Filme', descricao: 'Documentário sobre Fórmula 1.', imagem: '/images/0506.jpg' },
@@ -14,7 +15,8 @@ const filmesDestaque = [
 const Home = () => {
   return (
     <div style={{ padding: '2rem', background: '#000', minHeight: '100vh', color: '#fff' }}>
-     <ProfileBox />
+      <ProfileBox />
+
       {/* TÍTULO BONITO */}
       <div className="titulo-slogan-box">
         <h1 className="cinema02-titulo">
@@ -25,6 +27,7 @@ const Home = () => {
           Bem-vindo ao <b>Cinema02!</b> Aqui você encontra informações sobre os melhores filmes.
         </p>
       </div>
+
       {/* FILMES EM DESTAQUE */}
       <h2>Filmes em Destaque</h2>
       <ul className="filmes-lista">
@@ -37,8 +40,40 @@ const Home = () => {
           </li>
         ))}
       </ul>
-      <nav style={{ marginTop: '2rem' }}>
-        <Link to="/about">Sobre</Link>
+
+      {/* NAV: aqui coloquei o botão FAQ */}
+      <nav style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
+           {/* Botão SOBRE com o mesmo estilo do FAQ */}
+          <Link to="/about">
+           <button
+           style={{
+             padding: "10px 18px",
+             borderRadius: "8px",
+             background: "#7c3aed",
+             color: "white",
+             fontWeight: "600",
+             border: "none",
+             cursor: "pointer"
+           }}
+    >
+      Sobre
+    </button>
+  </Link>
+
+        {/* Botão FAQ adicionado */}
+        <Link to="/faq">
+          <button style={{
+            padding: "10px 18px",
+            borderRadius: "8px",
+            background: "#7c3aed",
+            color: "white",
+            fontWeight: "600",
+            border: "none",
+            cursor: "pointer"
+          }}>
+            FAQ
+          </button>
+        </Link>
       </nav>
     </div>
   );
