@@ -16,9 +16,12 @@ export default function ProdutorPage() {
     descricao: "",
     media: null,
     mediaUrl: "",
-    mediaType: ""
+    mediaType: "",
+    capa: null,
+    capaUrl: ""
   });
   const [erroMedia, setErroMedia] = useState("");
+  const [erroCapa, setErroCapa] = useState("");
 
   // Carrega os filmes do produtor ao abrir a tela
   useEffect(() => {
@@ -49,11 +52,23 @@ export default function ProdutorPage() {
     });
   }
 
+  function handleCapa(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setNovoFilme({
+      ...novoFilme,
+      capa: file,
+      capaUrl: URL.createObjectURL(file)
+    });
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     let mediaUrl = "";
+    let capaUrl = "";
     setErroMedia("");
-    // Upload da mídia (imagem ou vídeo) para o Storage e obtenha a URL pública
+    setErroCapa("");
+    // Upload da mídia (imagem ou vídeo)
     if (novoFilme.media) {
       try {
         const storage = getStorage();
@@ -71,11 +86,26 @@ export default function ProdutorPage() {
       setErroMedia("Selecione uma imagem ou vídeo.");
       return;
     }
+    // Upload da capa (imagem)
+    if (novoFilme.capa) {
+      try {
+        const storage = getStorage();
+        const capaRef = ref(storage, `capas/${Date.now()}_${novoFilme.capa.name}`);
+        await uploadBytes(capaRef, novoFilme.capa);
+        capaUrl = await getDownloadURL(capaRef);
+        console.log("URL da capa obtida:", capaUrl);
+      } catch (err) {
+        setErroCapa("Erro ao enviar imagem de capa.");
+        console.error("Erro no upload da capa:", err);
+        return;
+      }
+    }
     const filmeParaSalvar = {
       titulo: novoFilme.titulo,
       descricao: novoFilme.descricao,
       mediaUrl,
       mediaType: novoFilme.mediaType,
+      capaUrl, // Salva a URL da capa
       produtorUid: userUID
     };
     try {
@@ -91,7 +121,9 @@ export default function ProdutorPage() {
       descricao: "",
       media: null,
       mediaUrl: "",
-      mediaType: ""
+      mediaType: "",
+      capa: null,
+      capaUrl: ""
     });
   }
 
@@ -107,7 +139,9 @@ export default function ProdutorPage() {
       descricao: f.descricao,
       media: null,
       mediaUrl: f.mediaUrl,
-      mediaType: f.mediaType
+      mediaType: f.mediaType,
+      capa: null,
+      capaUrl: f.capaUrl
     });
   }
 
@@ -120,7 +154,8 @@ export default function ProdutorPage() {
             titulo: novoFilme.titulo,
             descricao: novoFilme.descricao,
             mediaUrl: novoFilme.mediaUrl,
-            mediaType: novoFilme.mediaType
+            mediaType: novoFilme.mediaType,
+            capaUrl: novoFilme.capaUrl
           }
         : f
     ));
@@ -130,7 +165,9 @@ export default function ProdutorPage() {
       descricao: "",
       media: null,
       mediaUrl: "",
-      mediaType: ""
+      mediaType: "",
+      capa: null,
+      capaUrl: ""
     });
   }
 
@@ -141,7 +178,9 @@ export default function ProdutorPage() {
       descricao: "",
       media: null,
       mediaUrl: "",
-      mediaType: ""
+      mediaType: "",
+      capa: null,
+      capaUrl: ""
     });
   }
 
@@ -181,7 +220,17 @@ export default function ProdutorPage() {
               required
             />
           </label>
+          <label>
+            Imagem de Capa:
+            <input
+              type="file"
+              name="capa"
+              accept="image/*"
+              onChange={handleCapa}
+            />
+          </label>
           {erroMedia && <div style={{color: 'red', marginBottom: 10}}>{erroMedia}</div>}
+          {erroCapa && <div style={{color: 'red', marginBottom: 10}}>{erroCapa}</div>}
           {novoFilme.mediaUrl &&
             <div className="produtor-preview">
               <h3>Prévia:</h3>
@@ -191,6 +240,12 @@ export default function ProdutorPage() {
               {novoFilme.mediaType === "video" &&
                 <video src={novoFilme.mediaUrl} controls width="250" className="produtor-preview-video" />
               }
+            </div>
+          }
+          {novoFilme.capa && novoFilme.capaUrl &&
+            <div className="produtor-preview">
+              <h3>Prévia da Capa:</h3>
+              <img src={novoFilme.capaUrl} alt="Prévia da Capa" className="produtor-preview-img" />
             </div>
           }
           <div style={{display: "flex", gap: "10px", marginTop: "20px"}}>

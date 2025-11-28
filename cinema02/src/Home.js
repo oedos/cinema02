@@ -57,8 +57,17 @@ const Home = () => {
         {/* Filmes enviados pelos produtores */}
         {filmesProdutores.map(filme => (
           <li key={filme.id} className="filme-card">
-            {filme.capaUrl ? (
+            {filme.imagemHome && filme.imagemHome.includes("drive.google.com") ? (
+              <img
+                src={`https://drive.google.com/uc?export=view&id=${filme.imagemHome.split("/d/")[1]?.split("/")[0]}`}
+                alt={filme.titulo}
+              />
+            ) : filme.imagemHome ? (
+              <img src={filme.imagemHome} alt={filme.titulo} />
+            ) : filme.capaUrl ? (
               <img src={filme.capaUrl} alt={filme.titulo} />
+            ) : filme.mediaType === "image" && filme.mediaUrl ? (
+              <img src={filme.mediaUrl} alt={filme.titulo} />
             ) : (
               <img
                 src="/images/placeholder.png"
