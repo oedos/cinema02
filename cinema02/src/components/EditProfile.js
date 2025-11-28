@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { db } from "../services/firebase";
 import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import "./EditProfile.css";
 import "./ProfilePage.css";
 
 // Use o mesmo UID fixo do exemplo

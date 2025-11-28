@@ -1,0 +1,70 @@
+.profilepage-bg {
+  background: #181818;
+  min-height: 100vh;
+  padding: 40px 0;
+}
+
+.profilepage-container {
+  background: #232323; /* fundo escuro */
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0008;
+  padding: 32px 24px;
+}
+
+.profilepage-title {
+  font-size: 2rem;
+  color: #dab300;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.profilepage-form label {
+  display: block;
+  margin-bottom: 16px;
+  color: #fff; /* texto claro */
+  font-weight: 500;
+}
+
+.profilepage-form input,
+.profilepage-form select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  margin-top: 4px;
+  font-size: 1rem;
+  background: #181818;
+  color: #fff;
+}
+
+.profilepage-editbtn {
+  background: #dab300;
+  color: #222;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.profilepage-editbtn:hover {
+  background: #bfa000;
+}
+
+.profilepage-logoutbtn {
+  background: #802020;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.profilepage-logoutbtn:hover {
+  background: #a04040;
+}

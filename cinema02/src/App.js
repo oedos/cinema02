@@ -8,6 +8,7 @@ import ProdutorPage from './components/ProdutorPage';
 import CadastroUsuario from './components/CadastroUsuario';
 import Login from './components/Login';
 import SelecionarCadeira from "./SelecionarCadeira";
+import EditProfile from "./components/EditProfile";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/cadastro" element={<CadastroUsuario />} />
         <Route path="/home" element={<Home />} />
         <Route path="/selecionar-cadeira/:filmeId/:shopping/:horario" element={<SelecionarCadeira />} />
+        <Route path="/editar-perfil" element={<EditProfile />} />
       </Routes>
     </Router>
   );
