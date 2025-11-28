@@ -1,0 +1,41 @@
+.detalhe-produtor-bg {
+  background: #181818;
+  min-height: 100vh;
+  padding: 40px 0;
+  color: #fff;
+}
+
+.detalhe-produtor-container {
+  background: #232323;
+  max-width: 600px;
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0008;
+  padding: 32px 24px;
+}
+
+.detalhe-produtor-titulo {
+  font-size: 2rem;
+  color: #dab300;
+  margin-bottom: 16px;
+}
+
+.detalhe-produtor-desc {
+  margin-bottom: 24px;
+  color: #eee;
+}
+
+.detalhe-produtor-voltar {
+  background: #dab300;
+  color: #222;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 18px;
+}
+
+.detalhe-produtor-voltar:hover {
+  background: #bfa000;
+}

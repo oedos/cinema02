@@ -9,6 +9,7 @@ import CadastroUsuario from './components/CadastroUsuario';
 import Login from './components/Login';
 import SelecionarCadeira from "./SelecionarCadeira";
 import EditProfile from "./components/EditProfile";
+import DetalheProdutor from './components/DetalheProdutor';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/selecionar-cadeira/:filmeId/:shopping/:horario" element={<SelecionarCadeira />} />
         <Route path="/editar-perfil" element={<EditProfile />} />
+        <Route path="/detalhe-produtor/:id" element={<DetalheProdutor />} />
       </Routes>
     </Router>
   );

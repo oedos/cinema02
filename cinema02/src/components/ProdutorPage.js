@@ -45,7 +45,7 @@ export default function ProdutorPage() {
       ...novoFilme,
       media: file,
       mediaUrl: URL.createObjectURL(file),
-      mediaType: file.type.startsWith("video") ? "video" : "image"
+      mediaType: file.type.startsWith("video") ? "video" : "image" // <-- só "video" ou "image"
     });
   }
 
