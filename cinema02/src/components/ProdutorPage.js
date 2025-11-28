@@ -3,6 +3,7 @@ import './ProdutorPage.css';
 import { adicionarFilme } from '../services/firebase';
 import { db } from '../services/firebase';
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // UID fixo de exemplo (use o mesmo do ProfilePage)
 const userUID = "OQXhNyiUgQgHpS1lwm7E68PTr083";
@@ -61,12 +62,20 @@ export default function ProdutorPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    let capaUrl = "";
+    // Upload da capa para o Storage e obtenha a URL pública
+    if (novoFilme.capa) {
+      const storage = getStorage();
+      const storageRef = ref(storage, `capas/${Date.now()}_${novoFilme.capa.name}`);
+      await uploadBytes(storageRef, novoFilme.capa);
+      capaUrl = await getDownloadURL(storageRef); // <-- use esta URL
+    }
     const filmeParaSalvar = {
       titulo: novoFilme.titulo,
       descricao: novoFilme.descricao,
       mediaUrl: novoFilme.mediaUrl,
       mediaType: novoFilme.mediaType,
-      capaUrl: novoFilme.capaUrl, // Agora é um arquivo local (URL temporária)
+      capaUrl, // URL pública do Storage
       produtorUid: userUID
     };
     try {
@@ -199,7 +208,7 @@ export default function ProdutorPage() {
               }
             </div>
           }
-          {novoFilme.capaUrl &&
+          {novoFilme.capa && novoFilme.capaUrl &&
             <div className="produtor-preview">
               <h3>Prévia do Cartaz:</h3>
               <img src={novoFilme.capaUrl} alt="Prévia do Cartaz" className="produtor-preview-img" />

@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, addDoc, collection } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // Sua configuração do Firebase
 export const firebaseConfig = {
@@ -25,4 +26,13 @@ export const auth = getAuth(app);
 // Exemplo de função para adicionar um filme
 export async function adicionarFilme(dadosFilme) {
   await addDoc(collection(db, "filmes"), dadosFilme);
+}
+
+// Exemplo de função para upload de capa
+export async function uploadCapa(file) {
+  const storage = getStorage();
+  const storageRef = ref(storage, `capas/${Date.now()}_${file.name}`);
+  await uploadBytes(storageRef, file);
+  const url = await getDownloadURL(storageRef); // <-- use esta URL
+  // Salve 'url' no Firestore como capaUrl
 }
