@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { db, auth } from "../services/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-
+import "./CadastroUsuario.css"; // Importação do CSS
 
 export default function CadastroUsuario() {
   const [nome, setNome] = useState("");
@@ -10,6 +10,7 @@ export default function CadastroUsuario() {
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
   const [sucesso, setSucesso] = useState(null);
+  const [tipo, setTipo] = useState("cliente");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,6 +26,7 @@ export default function CadastroUsuario() {
         uid: user.uid,
         nome,
         email,
+        tipo, // Salva o tipo de usuário
         criadoEm: new Date(),
       });
       setSucesso("Usuário cadastrado e autenticado com sucesso!");
@@ -38,29 +40,43 @@ export default function CadastroUsuario() {
   };
 
   return (
-    <div style={{ maxWidth: 350, margin: "2rem auto", padding: 20, border: "1px solid #aaa", borderRadius: 8 }}>
-      <h2>Cadastro de Usuário</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
+    <div className="cadastro-container">
+      <h2 className="cadastro-titulo">Cadastro de Usuário</h2>
+      <form className="cadastro-form" onSubmit={handleSubmit}>
+        <label className="cadastro-label">
           Nome: <br />
-          <input type="text" value={nome} onChange={e => setNome(e.target.value)} required />
+          <input className="cadastro-input" type="text" value={nome} onChange={e => setNome(e.target.value)} required />
         </label>
         <br /><br />
-        <label>
+        <label className="cadastro-label">
           Email: <br />
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+          <input className="cadastro-input" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
         </label>
         <br /><br />
-        <label>
+        <label className="cadastro-label">
           Senha: <br />
-          <input type="password" value={senha} onChange={e => setSenha(e.target.value)} required minLength={6} />
+          <input className="cadastro-input" type="password" value={senha} onChange={e => setSenha(e.target.value)} required minLength={6} />
         </label>
         <br /><br />
-        <button type="submit" disabled={loading}>
+        <label className="cadastro-label">
+          Você é:
+          <select
+            className="cadastro-input"
+            value={tipo}
+            onChange={e => setTipo(e.target.value)}
+            required
+            style={{ color: "#222" }}
+          >
+            <option value="cliente">Cliente / Comprador</option>
+            <option value="produtor">Produtor</option>
+          </select>
+        </label>
+        <br /><br />
+        <button className="cadastro-botao" type="submit" disabled={loading}>
           {loading ? "Cadastrando..." : "Cadastrar"}
         </button>
       </form>
-      {sucesso && <p style={{ color: sucesso.startsWith("Usuário") ? "green" : "red", marginTop: 10 }}>{sucesso}</p>}
+      {sucesso && <p className={`cadastro-msg ${sucesso.startsWith("Usuário") ? "sucesso" : "erro"}`}>{sucesso}</p>}
     </div>
   );
 }
