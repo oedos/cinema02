@@ -30,53 +30,64 @@
 }
 
 .produtor-form label {
-  font-weight: bold;
-  font-size: 1.07rem;
-  margin-bottom: 5px;
-  display: flex;
-  flex-direction: column;
+  font-weight: 600;
   color: #ffd700;
+  margin-bottom: 0.7rem;
+  display: block;
+  font-size: 1.08rem;
+  letter-spacing: 0.2px;
 }
 
 .produtor-form input[type="text"],
+.produtor-form input[type="url"],
 .produtor-form textarea {
-  font-size: 1rem;
-  padding: 8px 14px;
-  border-radius: 9px;
-  border: 1px solid #57ffae;
-  outline: none;
-  margin-top: 6px;
-  background: #191970;
+  width: 100%;
+  padding: 0.7rem 1rem;
+  margin: 0.5rem 0 1.2rem 0;
+  border-radius: 10px;
+  border: 1.3px solid #dab300;
+  background: #1d1d1d;
   color: #fff;
+  font-size: 1.07rem;
+  transition: border 0.19s;
+  box-sizing: border-box;
 }
 
 .produtor-form input[type="file"] {
-  background: #222;
-  color: #ffd700;
-  border: none;
-  margin-top: 8px;
+  margin: 0.5rem 0 1.2rem 0;
+  color: #fff;
+  font-size: 1.01rem;
+}
+
+.produtor-form input:focus,
+.produtor-form textarea:focus {
+  outline: none;
+  border-color: #a1072e;
 }
 
 .produtor-btn {
-  background: #57ffae;
-  color: #23226b;
-  font-weight: 700;
-  font-size: 1.11rem;
-  border-radius: 8px;
-  padding: 9px 22px;
-  border: none;
-  box-shadow: 0 2px 9px #57ffae33;
-  margin-top: 18px;
-  cursor: pointer;
-  transition: background .12s;
-}
-.produtor-btn:hover {
-  background: #23ea7c;
+  background: linear-gradient(90deg, #a1072e 60%, #ffd700 100%);
   color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.08rem;
+  font-weight: bold;
+  padding: 11px 32px;
+  cursor: pointer;
+  box-shadow: 0 3px 18px 0 #a1072e44, 0 0 0 2px #ffd70044;
+  letter-spacing: 0.5px;
+  transition: background 0.22s, color 0.22s, box-shadow 0.22s, transform 0.13s;
+}
+
+.produtor-btn:hover {
+  background: linear-gradient(90deg, #ffd700 40%, #a1072e 100%);
+  color: #222;
+  box-shadow: 0 6px 28px 0 #ffd70077, 0 0 0 2px #a1072e55;
+  transform: translateY(-2px) scale(1.04);
 }
 
 .produtor-preview {
-  margin-top: 32px;
+  margin: 1.2rem 0 1.7rem 0;
   background: #191970;
   border-radius: 13px;
   padding: 24px;
@@ -87,6 +98,9 @@
 .produtor-preview h3 {
   font-size: 1.12em;
   margin-bottom: 17px;
+  color: #ffd700;
+  margin-bottom: 0.7rem;
+  text-shadow: 0 2px 8px #222a;
 }
 .produtor-preview img {
   max-width: 260px;
@@ -97,6 +111,24 @@
   border-radius: 7px;
   border: 2px solid #57ffae;
   background: #222;
+}
+.produtor-preview-img {
+  max-width: 220px;
+  max-height: 320px;
+  border-radius: 12px;
+  border: 3px solid #ffd700;
+  box-shadow: 0 6px 32px #000a, 0 0 0 2px #ffd70044;
+  background: #181818;
+  margin: 0 auto;
+  display: block;
+}
+.produtor-preview-video {
+  border-radius: 12px;
+  border: 3px solid #ffd700;
+  box-shadow: 0 6px 32px #000a, 0 0 0 2px #ffd70044;
+  background: #181818;
+  margin: 0 auto;
+  display: block;
 }
 .produtor-filmes-lista {
   margin-top: 38px;

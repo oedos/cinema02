@@ -192,17 +192,17 @@ export default function ProdutorPage() {
             <div className="produtor-preview">
               <h3>Prévia:</h3>
               {novoFilme.mediaType === "image" &&
-                <img src={novoFilme.mediaUrl} alt="Prévia" />
+                <img src={novoFilme.mediaUrl} alt="Prévia" className="produtor-preview-img" />
               }
               {novoFilme.mediaType === "video" &&
-                <video src={novoFilme.mediaUrl} controls width="250" />
+                <video src={novoFilme.mediaUrl} controls width="250" className="produtor-preview-video" />
               }
             </div>
           }
           {novoFilme.capaUrl &&
             <div className="produtor-preview">
               <h3>Prévia do Cartaz:</h3>
-              <img src={novoFilme.capaUrl} alt="Prévia do Cartaz" />
+              <img src={novoFilme.capaUrl} alt="Prévia do Cartaz" className="produtor-preview-img" />
             </div>
           }
           <div style={{display: "flex", gap: "10px", marginTop: "20px"}}>

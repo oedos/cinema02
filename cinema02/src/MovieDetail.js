@@ -2,11 +2,18 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchMovies } from './services/api';
 import './styles/MovieDetail.css';
+import { db } from './services/firebase';
+import { collection, addDoc, query, where, getDocs, orderBy } from 'firebase/firestore';
 
 function MovieDetail() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const navigate = useNavigate();
+  const [nota, setNota] = useState('');
+  const [comentario, setComentario] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  const [sucesso, setSucesso] = useState('');
+  const [avaliacoes, setAvaliacoes] = useState([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -14,15 +21,47 @@ function MovieDetail() {
       setMovie(request.data);
     }
     fetchData();
-  }, [id]);
 
-  if (!movie) {
-    return <div className="movie-detail-loading">Carregando detalhes...</div>;
-  }
+    // Buscar avaliações do Firestore
+    async function fetchAvaliacoes() {
+      const q = query(
+        collection(db, "avaliacoes"),
+        where("filmeId", "==", id),
+        orderBy("criadoEm", "desc")
+      );
+      const querySnapshot = await getDocs(q);
+      setAvaliacoes(querySnapshot.docs.map(doc => doc.data()));
+    }
+    fetchAvaliacoes();
+  }, [id, sucesso]); // Atualiza ao enviar avaliação
 
   const handleBack = () => {
     navigate(-1);
   };
+
+  const handleAvaliacao = async (e) => {
+    e.preventDefault();
+    setEnviando(true);
+    setSucesso('');
+    try {
+      await addDoc(collection(db, "avaliacoes"), {
+        filmeId: id,
+        nota: Number(nota),
+        comentario,
+        criadoEm: new Date()
+      });
+      setSucesso('Avaliação enviada com sucesso!');
+      setNota('');
+      setComentario('');
+    } catch (err) {
+      setSucesso('Erro ao enviar avaliação.');
+    }
+    setEnviando(false);
+  };
+
+  if (!movie) {
+    return <div className="movie-detail-loading">Carregando detalhes...</div>;
+  }
 
   return (
     <div className="movie-detail-container">
@@ -44,6 +83,67 @@ function MovieDetail() {
           <h2 className="movie-detail-sinopse-title">Sinopse</h2>
           <p className="movie-detail-overview">{movie.overview}</p>
         </div>
+      </div>
+
+      {/* Formulário de avaliação */}
+      <div className="movie-avaliacao-box">
+        <h2>Avalie este filme</h2>
+        <form onSubmit={handleAvaliacao} className="movie-avaliacao-form">
+          <label>
+            Nota (0 a 10):<br />
+            <input
+              type="number"
+              min="0"
+              max="10"
+              step="0.1"
+              value={nota}
+              onChange={e => setNota(e.target.value)}
+              required
+              style={{ width: 70, marginRight: 12 }}
+            />
+          </label>
+          <br />
+          <label>
+            Comentário:<br />
+            <textarea
+              value={comentario}
+              onChange={e => setComentario(e.target.value)}
+              rows={3}
+              required
+              style={{ width: "100%", maxWidth: 340 }}
+            />
+          </label>
+          <br />
+          <button type="submit" disabled={enviando || !nota || !comentario}>
+            {enviando ? "Enviando..." : "Enviar avaliação"}
+          </button>
+        </form>
+        {sucesso && (
+          <div className={sucesso.startsWith('Avaliação') ? "sucesso-msg" : "erro-msg"}>
+            {sucesso}
+          </div>
+        )}
+      </div>
+
+      {/* Lista de avaliações */}
+      <div className="movie-avaliacoes-lista">
+        <h2>Comentários de outros usuários</h2>
+        {avaliacoes.length === 0 && (
+          <div className="movie-avaliacoes-vazio">Nenhum comentário ainda.</div>
+        )}
+        {avaliacoes.map((a, idx) => (
+          <div key={idx} className="movie-avaliacao-item">
+            <div className="movie-avaliacao-nota">
+              Nota: <b>{a.nota}</b>
+            </div>
+            <div className="movie-avaliacao-comentario">
+              {a.comentario}
+            </div>
+            <div className="movie-avaliacao-data">
+              {a.criadoEm && new Date(a.criadoEm.seconds * 1000).toLocaleString('pt-BR')}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
