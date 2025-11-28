@@ -59,6 +59,22 @@ function MovieDetail() {
     setEnviando(false);
   };
 
+  // Exemplo de shoppings e horários (pode ser dinâmico no futuro)
+  const shoppings = [
+    {
+      nome: "Shopping Center Norte",
+      horarios: ["14:00", "16:30", "19:00", "21:30"]
+    },
+    {
+      nome: "Shopping Eldorado",
+      horarios: ["13:45", "17:00", "20:15"]
+    },
+    {
+      nome: "Shopping Morumbi",
+      horarios: ["15:00", "18:00", "21:00"]
+    }
+  ];
+
   if (!movie) {
     return <div className="movie-detail-loading">Carregando detalhes...</div>;
   }
@@ -82,6 +98,30 @@ function MovieDetail() {
           </span>
           <h2 className="movie-detail-sinopse-title">Sinopse</h2>
           <p className="movie-detail-overview">{movie.overview}</p>
+
+          {/* NOVA SEÇÃO: Shoppings e horários */}
+          <div className="movie-shoppings-box">
+            <h2 className="movie-shoppings-title">Onde assistir</h2>
+            {shoppings.map((shop, idx) => (
+              <div key={idx} className="movie-shopping-item">
+                <div className="movie-shopping-nome">{shop.nome}</div>
+                <div className="movie-shopping-horarios">
+                  {shop.horarios.map((hora, hidx) => (
+                    <button
+                      key={hidx}
+                      className="movie-horario-btn"
+                      type="button"
+                      onClick={() =>
+                        navigate(`/selecionar-cadeira/${id}/${encodeURIComponent(shop.nome)}/${hora}`)
+                      }
+                    >
+                      {hora}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

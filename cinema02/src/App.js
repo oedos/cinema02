@@ -7,6 +7,7 @@ import ProfilePage from './components/ProfilePage';
 import ProdutorPage from './components/ProdutorPage'; 
 import CadastroUsuario from './components/CadastroUsuario';
 import Login from './components/Login';
+import SelecionarCadeira from "./SelecionarCadeira";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/produtor" element={<ProdutorPage />} />
         <Route path="/cadastro" element={<CadastroUsuario />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/selecionar-cadeira/:filmeId/:shopping/:horario" element={<SelecionarCadeira />} />
       </Routes>
     </Router>
   );
