@@ -110,3 +110,30 @@
   background: #23ea7c;
   color: #fff;
 }
+
+.profilepage-addmoviebtn {
+  margin-top: 12px;
+  padding: 11px 32px;
+  border: none;
+  border-radius: 7px;
+  font-size: 1.08rem;
+  font-weight: bold;
+  background: linear-gradient(90deg, #a1072e 60%, #ffd700 100%);
+  color: #fff;
+  box-shadow: 0 3px 18px 0 #a1072e44, 0 0 0 2px #ffd70044;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  width: calc(100% - 26px);
+  transition: background 0.22s, color 0.22s, box-shadow 0.22s, transform 0.13s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7em;
+}
+
+.profilepage-addmoviebtn:hover {
+  background: linear-gradient(90deg, #ffd700 40%, #a1072e 100%);
+  color: #222;
+  box-shadow: 0 6px 28px 0 #ffd70077, 0 0 0 2px #a1072e55;
+  transform: translateY(-2px) scale(1.04);
+}

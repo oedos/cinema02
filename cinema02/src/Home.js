@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './styles/Home.css';
 import ProfileBox from './components/ProfileBox';
-
+import { db } from './services/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 const filmesDestaque = [
   { id: 157336, titulo: 'Interestelar', descricao: 'Viagem pelo espaço e tempo.', imagem: '/images/4238-cartaz.jpg' },
@@ -13,6 +14,20 @@ const filmesDestaque = [
 ];
 
 const Home = () => {
+  const [filmesProdutores, setFilmesProdutores] = useState([]);
+
+  useEffect(() => {
+    async function fetchFilmes() {
+      const querySnapshot = await getDocs(collection(db, "filmes"));
+      const filmes = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setFilmesProdutores(filmes);
+    }
+    fetchFilmes();
+  }, []);
+
   return (
     <div style={{ padding: '2rem', background: '#000', minHeight: '100vh', color: '#fff' }}>
       <ProfileBox />
@@ -37,6 +52,23 @@ const Home = () => {
             <strong>{filme.titulo}</strong>
             <p>{filme.descricao}</p>
             <Link to={`/detalhe/${filme.id}`}>Ver detalhes</Link>
+          </li>
+        ))}
+        {/* Filmes enviados pelos produtores */}
+        {filmesProdutores.map(filme => (
+          <li key={filme.id} className="filme-card">
+            {filme.capaUrl ? (
+              <img src={filme.capaUrl} alt={filme.titulo} />
+            ) : (
+              <img
+                src="/images/placeholder.png"
+                alt="Sem imagem"
+                style={{ width: "100%", maxWidth: 180, height: 240, objectFit: "cover", borderRadius: 8, marginBottom: "1rem", background: "#181818" }}
+              />
+            )}
+            <strong>{filme.titulo}</strong>
+            <p>{filme.descricao}</p>
+            <Link to={`/detalhe-produtor/${filme.id}`}>Ver detalhes</Link>
           </li>
         ))}
       </ul>

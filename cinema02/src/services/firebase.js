@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, addDoc, collection } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 // Sua configuração do Firebase
@@ -21,3 +21,8 @@ export const db = getFirestore(app);
 
 // Inicializa e exporta o Auth
 export const auth = getAuth(app);
+
+// Exemplo de função para adicionar um filme
+export async function adicionarFilme(dadosFilme) {
+  await addDoc(collection(db, "filmes"), dadosFilme);
+}

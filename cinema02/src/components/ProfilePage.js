@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../services/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import './ProfilePage.css';
 
 // Você pode passar o UID pelo auth.currentUser.uid, props, contexto, etc.
@@ -16,11 +16,10 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const docRef = doc(db, "users", userUID);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          setUserProfile(docSnap.data());
+        const q = query(collection(db, "users"), where("uid", "==", userUID));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          setUserProfile(querySnapshot.docs[0].data());
         } else {
           setUserProfile(null);
         }
@@ -55,12 +54,23 @@ export default function ProfilePage() {
               <span className="profilepage-label">Email:</span>
               <span className="profilepage-value">{userProfile.email}</span>
             </div>
-            <button
-              className="profilepage-editbtn"
-              onClick={() => alert('Função de edição!')}
-            >
-              Editar perfil
-            </button>
+            {userProfile.tipo === "produtor" && (
+              <>
+                <button
+                  className="profilepage-editbtn"
+                  onClick={() => alert('Função de edição!')}
+                >
+                  Editar perfil
+                </button>
+                <button
+                  className="profilepage-addmoviebtn"
+                  onClick={() => navigate('/produtor')}
+                >
+                  <span role="img" aria-label="Filme">🎬</span>
+                  Adicionar filme
+                </button>
+              </>
+            )}
             <button
               className="profilepage-logoutbtn"
               onClick={() => alert('Logout!')}

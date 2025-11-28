@@ -1,52 +1,61 @@
 .filmes-lista {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 32px;   /* Espaçamento entre os filmes */
-  list-style: none; /* Tira os pontinhos da lista */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem 1.5rem;
+  list-style: none;
   padding: 0;
+  margin: 2rem 0;
 }
 
 .filme-card {
-  background: #222;
-  color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px #000a;
-  width: 220px;
-  min-width: 180px;
-  padding: 16px;
+  background: #232323;
+  border-radius: 16px;
+  padding: 1.2rem 1rem 1.5rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-shadow: 0 2px 12px #0004;
+  min-height: 370px;
 }
 
-.filme-card img {
-  width: 140px;
-  height: 210px;
+.filme-card img,
+.filme-card video {
+  width: 100%;
+  max-width: 180px;
+  height: 240px;
   object-fit: cover;
   border-radius: 8px;
-  margin-bottom: 14px;
+  margin-bottom: 1rem;
+  background: #181818;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
+
 .filme-card strong {
-  margin-bottom: 6px;
-  font-size: 1.07em;
+  font-size: 1.13rem;
+  margin-bottom: 0.4rem;
+  color: #fff;
 }
 .filme-card p {
-  font-size: 0.97em;
-  margin: 0 0 8px 0;
+  color: #e2e2e2;
+  font-size: 0.97rem;
+  margin-bottom: 1.1rem;
+  text-align: center;
 }
 .filme-card a {
-  margin-top: 10px;
-  background: #ffd700;
+  background: #ffd600;
   color: #222;
-  border-radius: 6px;
-  padding: 6px 16px;
-  text-decoration: none;
   font-weight: bold;
-  transition: background .2s;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.18s;
 }
 .filme-card a:hover {
-  background: #ffbb00;
+  background: #ffe066;
 }
+
 .titulo-slogan-box {
   text-align: center;
   margin-bottom: 32px;

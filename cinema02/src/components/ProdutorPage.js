@@ -1,27 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ProdutorPage.css';
+import { adicionarFilme } from '../services/firebase';
+import { db } from '../services/firebase';
+import { collection, query, where, getDocs } from "firebase/firestore";
 
-const initialFilmes = [
-  // filmes exemplo, pode começar vazio: []
-  {
-    id: 1,
-    titulo: "Filme do Produtor",
-    descricao: "Exemplo de descrição",
-    mediaUrl: "",
-    mediaType: "",
-  }
-];
+// UID fixo de exemplo (use o mesmo do ProfilePage)
+const userUID = "OQXhNyiUgQgHpS1lwm7E68PTr083";
 
 export default function ProdutorPage() {
-  const [filmes, setFilmes] = useState(initialFilmes);
-  const [editId, setEditId] = useState(null); // id do filme sendo editado
+  const [filmes, setFilmes] = useState([]);
+  const [editId, setEditId] = useState(null);
   const [novoFilme, setNovoFilme] = useState({
     titulo: "",
     descricao: "",
     media: null,
     mediaUrl: "",
-    mediaType: ""
+    mediaType: "",
+    capa: null,
+    capaUrl: ""
   });
+
+  // Carrega os filmes do produtor ao abrir a tela
+  useEffect(() => {
+    async function fetchFilmes() {
+      const q = query(collection(db, "filmes"), where("produtorUid", "==", userUID));
+      const querySnapshot = await getDocs(q);
+      const filmesDoProdutor = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setFilmes(filmesDoProdutor);
+    }
+    fetchFilmes();
+  }, []);
 
   function handleChange(e) {
     setNovoFilme({ ...novoFilme, [e.target.name]: e.target.value });
@@ -38,26 +49,40 @@ export default function ProdutorPage() {
     });
   }
 
-  function handleSubmit(e) {
+  function handleCapa(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setNovoFilme({
+      ...novoFilme,
+      capa: file,
+      capaUrl: URL.createObjectURL(file)
+    });
+  }
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    // novo id simples
-    const newId = Date.now();
-    setFilmes([
-      ...filmes,
-      {
-        id: newId,
-        titulo: novoFilme.titulo,
-        descricao: novoFilme.descricao,
-        mediaUrl: novoFilme.mediaUrl,
-        mediaType: novoFilme.mediaType
-      }
-    ]);
+    const filmeParaSalvar = {
+      titulo: novoFilme.titulo,
+      descricao: novoFilme.descricao,
+      mediaUrl: novoFilme.mediaUrl,
+      mediaType: novoFilme.mediaType,
+      capaUrl: novoFilme.capaUrl, // Agora é um arquivo local (URL temporária)
+      produtorUid: userUID
+    };
+    try {
+      await adicionarFilme(filmeParaSalvar);
+      setFilmes([...filmes, { id: Date.now(), ...filmeParaSalvar }]);
+    } catch (err) {
+      console.error('Erro ao salvar filme no Firestore:', err);
+    }
     setNovoFilme({
       titulo: "",
       descricao: "",
       media: null,
       mediaUrl: "",
-      mediaType: ""
+      mediaType: "",
+      capa: null,
+      capaUrl: ""
     });
   }
 
@@ -73,7 +98,9 @@ export default function ProdutorPage() {
       descricao: f.descricao,
       media: null,
       mediaUrl: f.mediaUrl,
-      mediaType: f.mediaType
+      mediaType: f.mediaType,
+      capa: null,
+      capaUrl: f.capaUrl // Adiciona capaUrl na edição
     });
   }
 
@@ -86,7 +113,8 @@ export default function ProdutorPage() {
             titulo: novoFilme.titulo,
             descricao: novoFilme.descricao,
             mediaUrl: novoFilme.mediaUrl,
-            mediaType: novoFilme.mediaType
+            mediaType: novoFilme.mediaType,
+            capaUrl: novoFilme.capaUrl // Salva capaUrl na edição
           }
         : f
     ));
@@ -96,7 +124,9 @@ export default function ProdutorPage() {
       descricao: "",
       media: null,
       mediaUrl: "",
-      mediaType: ""
+      mediaType: "",
+      capa: null,
+      capaUrl: ""
     });
   }
 
@@ -107,7 +137,9 @@ export default function ProdutorPage() {
       descricao: "",
       media: null,
       mediaUrl: "",
-      mediaType: ""
+      mediaType: "",
+      capa: null,
+      capaUrl: ""
     });
   }
 
@@ -144,7 +176,16 @@ export default function ProdutorPage() {
               name="media"
               accept="image/*,video/*"
               onChange={handleMedia}
-              // not required in edit, optional
+            />
+          </label>
+          <label>
+            Imagem da Capa/Cartaz:
+            <input
+              type="file"
+              name="capa"
+              accept="image/*"
+              onChange={handleCapa}
+              required
             />
           </label>
           {novoFilme.mediaUrl &&
@@ -156,6 +197,12 @@ export default function ProdutorPage() {
               {novoFilme.mediaType === "video" &&
                 <video src={novoFilme.mediaUrl} controls width="250" />
               }
+            </div>
+          }
+          {novoFilme.capaUrl &&
+            <div className="produtor-preview">
+              <h3>Prévia do Cartaz:</h3>
+              <img src={novoFilme.capaUrl} alt="Prévia do Cartaz" />
             </div>
           }
           <div style={{display: "flex", gap: "10px", marginTop: "20px"}}>
