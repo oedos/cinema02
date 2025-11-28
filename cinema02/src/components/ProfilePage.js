@@ -58,7 +58,7 @@ export default function ProfilePage() {
               <>
                 <button
                   className="profilepage-editbtn"
-                  onClick={() => alert('Função de edição!')}
+                  onClick={() => navigate('/editar-perfil')}
                 >
                   Editar perfil
                 </button>

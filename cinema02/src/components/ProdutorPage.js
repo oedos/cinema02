@@ -16,10 +16,9 @@ export default function ProdutorPage() {
     descricao: "",
     media: null,
     mediaUrl: "",
-    mediaType: "",
-    capa: null,
-    capaUrl: ""
+    mediaType: ""
   });
+  const [erroMedia, setErroMedia] = useState("");
 
   // Carrega os filmes do produtor ao abrir a tela
   useEffect(() => {
@@ -50,48 +49,49 @@ export default function ProdutorPage() {
     });
   }
 
-  function handleCapa(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    setNovoFilme({
-      ...novoFilme,
-      capa: file,
-      capaUrl: URL.createObjectURL(file)
-    });
-  }
-
   async function handleSubmit(e) {
     e.preventDefault();
-    let capaUrl = "";
-    // Upload da capa para o Storage e obtenha a URL pública
-    if (novoFilme.capa) {
-      const storage = getStorage();
-      const storageRef = ref(storage, `capas/${Date.now()}_${novoFilme.capa.name}`);
-      await uploadBytes(storageRef, novoFilme.capa);
-      capaUrl = await getDownloadURL(storageRef); // <-- use esta URL
+    let mediaUrl = "";
+    setErroMedia("");
+    // Upload da mídia (imagem ou vídeo) para o Storage e obtenha a URL pública
+    if (novoFilme.media) {
+      try {
+        const storage = getStorage();
+        const storageRef = ref(storage, `midias/${Date.now()}_${novoFilme.media.name}`);
+        console.log("Iniciando upload da mídia:", novoFilme.media, "para", storageRef.fullPath);
+        await uploadBytes(storageRef, novoFilme.media);
+        mediaUrl = await getDownloadURL(storageRef);
+        console.log("URL da mídia obtida:", mediaUrl);
+      } catch (err) {
+        setErroMedia("Erro ao enviar mídia. Verifique o tipo e tamanho do arquivo.");
+        console.error("Erro no upload da mídia:", err);
+        return;
+      }
+    } else {
+      setErroMedia("Selecione uma imagem ou vídeo.");
+      return;
     }
     const filmeParaSalvar = {
       titulo: novoFilme.titulo,
       descricao: novoFilme.descricao,
-      mediaUrl: novoFilme.mediaUrl,
+      mediaUrl,
       mediaType: novoFilme.mediaType,
-      capaUrl, // URL pública do Storage
       produtorUid: userUID
     };
     try {
+      console.log("Salvando filme no Firestore:", filmeParaSalvar);
       await adicionarFilme(filmeParaSalvar);
       setFilmes([...filmes, { id: Date.now(), ...filmeParaSalvar }]);
     } catch (err) {
       console.error('Erro ao salvar filme no Firestore:', err);
+      setErroMedia("Erro ao salvar filme no banco de dados.");
     }
     setNovoFilme({
       titulo: "",
       descricao: "",
       media: null,
       mediaUrl: "",
-      mediaType: "",
-      capa: null,
-      capaUrl: ""
+      mediaType: ""
     });
   }
 
@@ -107,9 +107,7 @@ export default function ProdutorPage() {
       descricao: f.descricao,
       media: null,
       mediaUrl: f.mediaUrl,
-      mediaType: f.mediaType,
-      capa: null,
-      capaUrl: f.capaUrl // Adiciona capaUrl na edição
+      mediaType: f.mediaType
     });
   }
 
@@ -122,8 +120,7 @@ export default function ProdutorPage() {
             titulo: novoFilme.titulo,
             descricao: novoFilme.descricao,
             mediaUrl: novoFilme.mediaUrl,
-            mediaType: novoFilme.mediaType,
-            capaUrl: novoFilme.capaUrl // Salva capaUrl na edição
+            mediaType: novoFilme.mediaType
           }
         : f
     ));
@@ -133,9 +130,7 @@ export default function ProdutorPage() {
       descricao: "",
       media: null,
       mediaUrl: "",
-      mediaType: "",
-      capa: null,
-      capaUrl: ""
+      mediaType: ""
     });
   }
 
@@ -146,9 +141,7 @@ export default function ProdutorPage() {
       descricao: "",
       media: null,
       mediaUrl: "",
-      mediaType: "",
-      capa: null,
-      capaUrl: ""
+      mediaType: ""
     });
   }
 
@@ -185,18 +178,10 @@ export default function ProdutorPage() {
               name="media"
               accept="image/*,video/*"
               onChange={handleMedia}
-            />
-          </label>
-          <label>
-            Imagem da Capa/Cartaz:
-            <input
-              type="file"
-              name="capa"
-              accept="image/*"
-              onChange={handleCapa}
               required
             />
           </label>
+          {erroMedia && <div style={{color: 'red', marginBottom: 10}}>{erroMedia}</div>}
           {novoFilme.mediaUrl &&
             <div className="produtor-preview">
               <h3>Prévia:</h3>
@@ -206,12 +191,6 @@ export default function ProdutorPage() {
               {novoFilme.mediaType === "video" &&
                 <video src={novoFilme.mediaUrl} controls width="250" className="produtor-preview-video" />
               }
-            </div>
-          }
-          {novoFilme.capa && novoFilme.capaUrl &&
-            <div className="produtor-preview">
-              <h3>Prévia do Cartaz:</h3>
-              <img src={novoFilme.capaUrl} alt="Prévia do Cartaz" className="produtor-preview-img" />
             </div>
           }
           <div style={{display: "flex", gap: "10px", marginTop: "20px"}}>

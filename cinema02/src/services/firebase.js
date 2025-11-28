@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, addDoc, collection } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // Sua configuração do Firebase
@@ -22,6 +22,7 @@ export const db = getFirestore(app);
 
 // Inicializa e exporta o Auth
 export const auth = getAuth(app);
+console.log(auth.currentUser);
 
 // Exemplo de função para adicionar um filme
 export async function adicionarFilme(dadosFilme) {
@@ -30,9 +31,43 @@ export async function adicionarFilme(dadosFilme) {
 
 // Exemplo de função para upload de capa
 export async function uploadCapa(file) {
-  const storage = getStorage();
-  const storageRef = ref(storage, `capas/${Date.now()}_${file.name}`);
-  await uploadBytes(storageRef, file);
-  const url = await getDownloadURL(storageRef); // <-- use esta URL
-  // Salve 'url' no Firestore como capaUrl
+  try {
+    // Verifica se o arquivo existe
+    if (!file) {
+      throw new Error("Nenhum arquivo enviado para upload.");
+    }
+    // Verifica se é imagem
+    if (!file.type || !file.type.startsWith("image/")) {
+      throw new Error("Arquivo não é uma imagem.");
+    }
+    const storage = getStorage();
+    const storageRef = ref(storage, `capas/${Date.now()}_${file.name}`);
+    console.log("Tentando fazer upload:", file, "para", storageRef.fullPath);
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+    return url; // Retorna a URL para uso posterior
+  } catch (err) {
+    // Log detalhado para debug
+    console.error("Erro ao fazer upload da capa:", err);
+    throw err;
+  }
 }
+
+// Função para registrar usuário
+export async function registrarUsuario(email, senha) {
+  return await createUserWithEmailAndPassword(auth, email, senha);
+}
+
+// Função para login de usuário
+export async function loginUsuario(email, senha) {
+  return await signInWithEmailAndPassword(auth, email, senha);
+}
+
+// Regras de CORS para o Firebase Storage
+// export const corsConfig = [
+//   {
+//     "origin": ["*"],
+//     "method": ["GET", "POST", "PUT", "DELETE"],
+//     "maxAgeSeconds": 3600
+//   }
+// ];
