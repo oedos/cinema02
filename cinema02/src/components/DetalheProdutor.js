@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { db } from "../services/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { supabase } from "../services/supabase";
 import "./DetalheProdutor.css";
 
 export default function DetalheProdutor() {
@@ -12,19 +11,9 @@ export default function DetalheProdutor() {
 
   useEffect(() => {
     async function fetchFilme() {
-      try {
-        const docRef = doc(db, "filmes", id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setFilme(docSnap.data());
-        } else {
-          setFilme(null);
-        }
-      } catch (err) {
-        setFilme(null);
-      } finally {
-        setLoading(false);
-      }
+      const { data, error } = await supabase.from('filmes').select('*').eq('id', id).single();
+      setFilme(data || null);
+      setLoading(false);
     }
     fetchFilme();
   }, [id]);

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { db, auth } from "./services/firebase";
-import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import { supabase } from "./services/supabase";
 
 const ROWS = 5;
 const COLS = 8;
@@ -15,14 +14,13 @@ export default function SelecionarCadeira() {
   // Buscar cadeiras ocupadas ao abrir a tela
   useEffect(() => {
     async function fetchOcupadas() {
-      const q = query(
-        collection(db, "reservas"),
-        where("filmeId", "==", filmeId),
-        where("shopping", "==", decodeURIComponent(shopping)),
-        where("horario", "==", horario)
-      );
-      const snapshot = await getDocs(q);
-      setOcupadas(snapshot.docs.map(doc => doc.data().cadeira));
+      const { data, error } = await supabase
+        .from("reservas")
+        .select("cadeira")
+        .eq("filmeId", filmeId)
+        .eq("shopping", decodeURIComponent(shopping))
+        .eq("horario", horario);
+      setOcupadas((data || []).map(r => r.cadeira));
     }
     fetchOcupadas();
   }, [filmeId, shopping, horario]);
@@ -32,20 +30,25 @@ export default function SelecionarCadeira() {
   }
 
   async function handleConfirmar() {
-    const uid = auth.currentUser?.uid;
+    // Aqui você pode obter o usuário autenticado do Supabase se quiser
+    const user = supabase.auth.user();
+    const uid = user?.id;
     if (!uid) {
       alert("Você precisa estar logado para reservar uma cadeira.");
       return;
     }
     try {
-      await addDoc(collection(db, "reservas"), {
-        filmeId,
-        shopping: decodeURIComponent(shopping),
-        horario,
-        cadeira: selecionada,
-        uid,
-        criadoEm: new Date()
-      });
+      const { error } = await supabase.from("reservas").insert([
+        {
+          filmeId,
+          shopping: decodeURIComponent(shopping),
+          horario,
+          cadeira: selecionada,
+          uid,
+          criadoEm: new Date().toISOString()
+        }
+      ]);
+      if (error) throw error;
       alert(`Cadeira ${selecionada} reservada com sucesso!`);
       navigate(-1);
     } catch (err) {

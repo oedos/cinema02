@@ -1,36 +1,39 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { fetchMovies } from './services/api';
-import './styles/MovieDetail.css';
-import { db } from './services/firebase';
-import { collection, addDoc, query, where, getDocs, orderBy } from 'firebase/firestore';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { supabase } from "./services/supabase";
+import "./styles/MovieDetail.css";
 
 function MovieDetail() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const [nota, setNota] = useState('');
-  const [comentario, setComentario] = useState('');
+  const [nota, setNota] = useState("");
+  const [comentario, setComentario] = useState("");
   const [enviando, setEnviando] = useState(false);
-  const [sucesso, setSucesso] = useState('');
+  const [sucesso, setSucesso] = useState("");
   const [avaliacoes, setAvaliacoes] = useState([]);
 
   useEffect(() => {
-    async function fetchData() {
-      const request = await fetchMovies(`movie/${id}?api_key=03e81f84616e91119defeb48cf87d32b&language=pt-BR`);
-      setMovie(request.data);
+    async function fetchFilme() {
+      const { data, error } = await supabase
+        .from("filmes")
+        .select("*")
+        .eq("id", id)
+        .single();
+      setMovie(data || null);
+      setLoading(false);
     }
-    fetchData();
+    fetchFilme();
 
-    // Buscar avaliações do Firestore
+    // Buscar avaliações do Supabase
     async function fetchAvaliacoes() {
-      const q = query(
-        collection(db, "avaliacoes"),
-        where("filmeId", "==", id),
-        orderBy("criadoEm", "desc")
-      );
-      const querySnapshot = await getDocs(q);
-      setAvaliacoes(querySnapshot.docs.map(doc => doc.data()));
+      const { data, error } = await supabase
+        .from("avaliacoes")
+        .select("*")
+        .eq("filmeId", id)
+        .order("criadoEm", { ascending: false });
+      setAvaliacoes(data || []);
     }
     fetchAvaliacoes();
   }, [id, sucesso]); // Atualiza ao enviar avaliação
@@ -42,19 +45,22 @@ function MovieDetail() {
   const handleAvaliacao = async (e) => {
     e.preventDefault();
     setEnviando(true);
-    setSucesso('');
+    setSucesso("");
     try {
-      await addDoc(collection(db, "avaliacoes"), {
-        filmeId: id,
-        nota: Number(nota),
-        comentario,
-        criadoEm: new Date()
-      });
-      setSucesso('Avaliação enviada com sucesso!');
-      setNota('');
-      setComentario('');
+      const { error } = await supabase.from("avaliacoes").insert([
+        {
+          filmeId: id,
+          nota: Number(nota),
+          comentario,
+          criadoEm: new Date().toISOString(),
+        },
+      ]);
+      if (error) throw error;
+      setSucesso("Avaliação enviada com sucesso!");
+      setNota("");
+      setComentario("");
     } catch (err) {
-      setSucesso('Erro ao enviar avaliação.');
+      setSucesso("Erro ao enviar avaliação.");
     }
     setEnviando(false);
   };
@@ -63,26 +69,27 @@ function MovieDetail() {
   const shoppings = [
     {
       nome: "Shopping Center Norte",
-      horarios: ["14:00", "16:30", "19:00", "21:30"]
+      horarios: ["14:00", "16:30", "19:00", "21:30"],
     },
     {
       nome: "Shopping Eldorado",
-      horarios: ["13:45", "17:00", "20:15"]
+      horarios: ["13:45", "17:00", "20:15"],
     },
     {
       nome: "Shopping Morumbi",
-      horarios: ["15:00", "18:00", "21:00"]
-    }
+      horarios: ["15:00", "18:00", "21:00"],
+    },
   ];
 
-  if (!movie) {
-    return <div className="movie-detail-loading">Carregando detalhes...</div>;
-  }
+  if (loading) return <div style={{ color: "#fff" }}>Carregando...</div>;
+  if (!movie) return <div style={{ color: "#fff" }}>Filme não encontrado.</div>;
 
   return (
     <div className="movie-detail-container">
-      <button className="back-button" onClick={handleBack}>Voltar</button>
-      
+      <button className="back-button" onClick={handleBack}>
+        Voltar
+      </button>
+
       <div className="movie-detail-card">
         {movie.poster_path && (
           <img
@@ -112,7 +119,11 @@ function MovieDetail() {
                       className="movie-horario-btn"
                       type="button"
                       onClick={() =>
-                        navigate(`/selecionar-cadeira/${id}/${encodeURIComponent(shop.nome)}/${hora}`)
+                        navigate(
+                          `/selecionar-cadeira/${id}/${encodeURIComponent(
+                            shop.nome
+                          )}/${hora}`
+                        )
                       }
                     >
                       {hora}
@@ -137,7 +148,7 @@ function MovieDetail() {
               max="10"
               step="0.1"
               value={nota}
-              onChange={e => setNota(e.target.value)}
+              onChange={(e) => setNota(e.target.value)}
               required
               style={{ width: 70, marginRight: 12 }}
             />
@@ -147,7 +158,7 @@ function MovieDetail() {
             Comentário:<br />
             <textarea
               value={comentario}
-              onChange={e => setComentario(e.target.value)}
+              onChange={(e) => setComentario(e.target.value)}
               rows={3}
               required
               style={{ width: "100%", maxWidth: 340 }}
@@ -159,7 +170,9 @@ function MovieDetail() {
           </button>
         </form>
         {sucesso && (
-          <div className={sucesso.startsWith('Avaliação') ? "sucesso-msg" : "erro-msg"}>
+          <div
+            className={sucesso.startsWith("Avaliação") ? "sucesso-msg" : "erro-msg"}
+          >
             {sucesso}
           </div>
         )}
@@ -176,11 +189,10 @@ function MovieDetail() {
             <div className="movie-avaliacao-nota">
               Nota: <b>{a.nota}</b>
             </div>
-            <div className="movie-avaliacao-comentario">
-              {a.comentario}
-            </div>
+            <div className="movie-avaliacao-comentario">{a.comentario}</div>
             <div className="movie-avaliacao-data">
-              {a.criadoEm && new Date(a.criadoEm.seconds * 1000).toLocaleString('pt-BR')}
+              {a.criadoEm &&
+                new Date(a.criadoEm).toLocaleString("pt-BR")}
             </div>
           </div>
         ))}

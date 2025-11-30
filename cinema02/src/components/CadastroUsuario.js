@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { db, auth } from "../services/firebase";
-import { collection, addDoc } from "firebase/firestore";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { supabase } from "../services/supabase";
 import "./CadastroUsuario.css"; // Importação do CSS
 
 export default function CadastroUsuario() {
@@ -18,23 +16,33 @@ export default function CadastroUsuario() {
     setSucesso(null);
 
     try {
-      // Cria usuário no Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-      const user = userCredential.user;
-      // Salva os dados no Firestore, incluindo o uid do usuário criado
-      await addDoc(collection(db, "users"), {
-        uid: user.uid,
-        nome,
+      // Cria usuário no Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
         email,
-        tipo, // Salva o tipo de usuário
-        criadoEm: new Date(),
+        password: senha,
+        options: {
+          data: { nome, tipo }
+        }
       });
+      if (error) throw error;
+
+      // Salva os dados do usuário na tabela 'users'
+      const { user } = data;
+      await supabase.from("users").insert([
+        {
+          uid: user?.id,
+          nome,
+          email,
+          tipo,
+          criadoEm: new Date().toISOString(),
+        }
+      ]);
       setSucesso("Usuário cadastrado e autenticado com sucesso!");
       setNome("");
       setEmail("");
-      setSenha("");      
+      setSenha("");
     } catch (err) {
-      setSucesso("Erro ao cadastrar: " + err.message);
+      setSucesso("Erro ao cadastrar: " + (err.message || err.error_description));
     }
     setLoading(false);
   };

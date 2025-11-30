@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../services/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { supabase } from '../services/supabase';
 import './ProfilePage.css';
 
 // Você pode passar o UID pelo auth.currentUser.uid, props, contexto, etc.
@@ -16,13 +15,12 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const q = query(collection(db, "users"), where("uid", "==", userUID));
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-          setUserProfile(querySnapshot.docs[0].data());
-        } else {
-          setUserProfile(null);
-        }
+        const { data, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("uid", userUID)
+          .single();
+        setUserProfile(data || null);
       } catch (error) {
         setUserProfile(null);
       } finally {

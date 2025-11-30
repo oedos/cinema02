@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../services/firebase";
-import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
+import { supabase } from "../services/supabase";
 import { useNavigate } from "react-router-dom";
 import "./EditProfile.css";
 import "./ProfilePage.css";
@@ -20,14 +19,16 @@ export default function EditProfile() {
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const q = query(collection(db, "users"), where("uid", "==", userUID));
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-          const docData = querySnapshot.docs[0];
-          setUserProfile({ ...docData.data(), docId: docData.id });
-          setNome(docData.data().nome || "");
-          setEmail(docData.data().email || "");
-          setTipo(docData.data().tipo || "cliente");
+        const { data, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("uid", userUID)
+          .single();
+        if (data) {
+          setUserProfile(data);
+          setNome(data.nome || "");
+          setEmail(data.email || "");
+          setTipo(data.tipo || "cliente");
         }
       } catch (err) {
         setMsg("Erro ao carregar perfil.");
@@ -41,10 +42,13 @@ export default function EditProfile() {
   async function handleSubmit(e) {
     e.preventDefault();
     setMsg("");
-    if (!userProfile?.docId) return;
+    if (!userProfile?.uid) return;
     try {
-      const userRef = doc(db, "users", userProfile.docId);
-      await updateDoc(userRef, { nome, email, tipo });
+      const { error } = await supabase
+        .from("users")
+        .update({ nome, email, tipo })
+        .eq("uid", userProfile.uid);
+      if (error) throw error;
       setMsg("Perfil atualizado com sucesso!");
     } catch (err) {
       setMsg("Erro ao atualizar perfil.");

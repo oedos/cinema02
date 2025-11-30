@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './styles/Home.css';
 import ProfileBox from './components/ProfileBox';
-import { db } from './services/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { supabase } from './services/supabase';
 
 const filmesDestaque = [
   { id: 157336, titulo: 'Interestelar', descricao: 'Viagem pelo espaço e tempo.', imagem: '/images/4238-cartaz.jpg' },
@@ -18,12 +17,8 @@ const Home = () => {
 
   useEffect(() => {
     async function fetchFilmes() {
-      const querySnapshot = await getDocs(collection(db, "filmes"));
-      const filmes = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setFilmesProdutores(filmes);
+      const { data, error } = await supabase.from('filmes').select('*');
+      if (!error) setFilmesProdutores(data || []);
     }
     fetchFilmes();
   }, []);

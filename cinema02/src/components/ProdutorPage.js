@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './ProdutorPage.css';
-import { adicionarFilme } from '../services/firebase';
-import { db } from '../services/firebase';
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { supabase } from '../services/supabase';
 
 // UID fixo de exemplo (use o mesmo do ProfilePage)
 const userUID = "OQXhNyiUgQgHpS1lwm7E68PTr083";
@@ -26,13 +23,8 @@ export default function ProdutorPage() {
   // Carrega os filmes do produtor ao abrir a tela
   useEffect(() => {
     async function fetchFilmes() {
-      const q = query(collection(db, "filmes"), where("produtorUid", "==", userUID));
-      const querySnapshot = await getDocs(q);
-      const filmesDoProdutor = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setFilmes(filmesDoProdutor);
+      const { data, error } = await supabase.from('filmes').select('*').eq('produtorUid', userUID);
+      setFilmes(data || []);
     }
     fetchFilmes();
   }, []);
@@ -48,7 +40,7 @@ export default function ProdutorPage() {
       ...novoFilme,
       media: file,
       mediaUrl: URL.createObjectURL(file),
-      mediaType: file.type.startsWith("video") ? "video" : "image" // <-- só "video" ou "image"
+      mediaType: file.type.startsWith("video") ? "video" : "image"
     });
   }
 
@@ -71,12 +63,11 @@ export default function ProdutorPage() {
     // Upload da mídia (imagem ou vídeo)
     if (novoFilme.media) {
       try {
-        const storage = getStorage();
-        const storageRef = ref(storage, `midias/${Date.now()}_${novoFilme.media.name}`);
-        console.log("Iniciando upload da mídia:", novoFilme.media, "para", storageRef.fullPath);
-        await uploadBytes(storageRef, novoFilme.media);
-        mediaUrl = await getDownloadURL(storageRef);
-        console.log("URL da mídia obtida:", mediaUrl);
+        const path = `midias/${Date.now()}_${novoFilme.media.name}`;
+        const { error: uploadError } = await supabase.storage.from('midias').upload(path, novoFilme.media);
+        if (uploadError) throw uploadError;
+        const { data } = supabase.storage.from('midias').getPublicUrl(path);
+        mediaUrl = data.publicUrl;
       } catch (err) {
         setErroMedia("Erro ao enviar mídia. Verifique o tipo e tamanho do arquivo.");
         console.error("Erro no upload da mídia:", err);
@@ -89,11 +80,11 @@ export default function ProdutorPage() {
     // Upload da capa (imagem)
     if (novoFilme.capa) {
       try {
-        const storage = getStorage();
-        const capaRef = ref(storage, `capas/${Date.now()}_${novoFilme.capa.name}`);
-        await uploadBytes(capaRef, novoFilme.capa);
-        capaUrl = await getDownloadURL(capaRef);
-        console.log("URL da capa obtida:", capaUrl);
+        const path = `capas/${Date.now()}_${novoFilme.capa.name}`;
+        const { error: uploadError } = await supabase.storage.from('capas').upload(path, novoFilme.capa);
+        if (uploadError) throw uploadError;
+        const { data } = supabase.storage.from('capas').getPublicUrl(path);
+        capaUrl = data.publicUrl;
       } catch (err) {
         setErroCapa("Erro ao enviar imagem de capa.");
         console.error("Erro no upload da capa:", err);
@@ -105,15 +96,15 @@ export default function ProdutorPage() {
       descricao: novoFilme.descricao,
       mediaUrl,
       mediaType: novoFilme.mediaType,
-      capaUrl, // Salva a URL da capa
+      capaUrl,
       produtorUid: userUID
     };
     try {
-      console.log("Salvando filme no Firestore:", filmeParaSalvar);
-      await adicionarFilme(filmeParaSalvar);
+      // Insere o filme diretamente no Supabase
+      const { error } = await supabase.from('filmes').insert([filmeParaSalvar]);
+      if (error) throw error;
       setFilmes([...filmes, { id: Date.now(), ...filmeParaSalvar }]);
     } catch (err) {
-      console.error('Erro ao salvar filme no Firestore:', err);
       setErroMedia("Erro ao salvar filme no banco de dados.");
     }
     setNovoFilme({
@@ -127,7 +118,9 @@ export default function ProdutorPage() {
     });
   }
 
-  function handleRemove(id) {
+  async function handleRemove(id) {
+    // Remove do Supabase
+    await supabase.from('filmes').delete().eq('id', id);
     setFilmes(filmes.filter(f => f.id !== id));
   }
 

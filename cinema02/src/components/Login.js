@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { auth } from "../services/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { supabase } from "../services/supabase"; // troque para supabase
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
 
@@ -16,12 +15,15 @@ export default function Login() {
     setErro(null);
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, senha);
-      setErro(null);
-       navigate("/home"); // Redireciona para Home ao logar com sucesso
-      // Redirecionar se quiser
+      const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+      if (error) {
+        setErro("Email ou senha inválidos.");
+      } else {
+        setErro(null);
+        navigate("/home"); // Redireciona para Home ao logar com sucesso
+      }
     } catch (error) {
-      setErro("Email ou senha inválidos.");
+      setErro("Erro ao fazer login.");
     }
     setLoading(false);
   };
