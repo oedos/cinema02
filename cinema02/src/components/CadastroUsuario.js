@@ -16,33 +16,36 @@ export default function CadastroUsuario() {
     setSucesso(null);
 
     try {
-      // Cria usuário no Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password: senha,
-        options: {
-          data: { nome, tipo }
-        }
-      });
-      if (error) throw error;
+      // 1) cria usuário no Auth (envia email de confirmação conforme config do Supabase)
+      const { data, error: signUpError } = await supabase.auth.signUp(
+        { email, password: senha },
+        { data: { nome, tipo } } // metadata opcional
+      );
+      if (signUpError) throw signUpError;
 
-      // Salva os dados do usuário na tabela 'users'
-      const { user } = data;
-      await supabase.from("users").insert([
-        {
-          uid: user?.id,
-          nome,
-          email,
-          tipo,
-          criadoEm: new Date().toISOString(),
-        }
-      ]);
-      setSucesso("Usuário cadastrado e autenticado com sucesso!");
+      // usuário recém-criado (pode estar em data.user dependendo da versão)
+      const userId = data?.user?.id || data?.id || null;
+
+      // 2) salva perfil na tabela 'profiles' (use id = userId) — crie a tabela profiles no Supabase
+      if (userId) {
+        const { error: insertError } = await supabase.from("profiles").insert([
+          {
+            id: userId,
+            nome,
+            email,
+            tipo,
+            created_at: new Date().toISOString(),
+          },
+        ]);
+        if (insertError) throw insertError;
+      }
+
+      setSucesso("Usuário cadastrado com sucesso! Verifique seu e-mail, se for necessário confirmar.");
       setNome("");
       setEmail("");
       setSenha("");
     } catch (err) {
-      setSucesso("Erro ao cadastrar: " + (err.message || err.error_description));
+      setSucesso("Erro ao cadastrar: " + (err.message || JSON.stringify(err)));
     }
     setLoading(false);
   };
