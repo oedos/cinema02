@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import './ProfilePage.css';
-
-// Você pode passar o UID pelo auth.currentUser.uid, props, contexto, etc.
-// Aqui, usando o UID fixo que você passou para exemplo:
-const userUID = "OQXhNyiUgQgHpS1lwm7E68PTr083";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -13,25 +9,106 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    let mounted = true;
+    let subscription = null;
+
+    async function fetchProfileByUid(uid) {
       try {
-        const { data, error } = await supabase
-          .from("users")
-          .select("*")
-          .eq("uid", userUID)
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', uid)
           .single();
-        setUserProfile(data || null);
-      } catch (error) {
-        setUserProfile(null);
+
+        if (!mounted) return;
+
+        if (error) {
+          // log detalhado para debug
+          console.error('Erro ao buscar profile:', error);
+          try { console.error('Erro detail JSON:', JSON.stringify(error)); } catch (e) {}
+          // mensagens amigáveis
+          if (error.code === 'PGRST100' || error.message?.includes('does not exist')) {
+            setUserProfile({ __error: 'Tabela "profiles" não encontrada no banco.' });
+          } else if (error.status === 403 || error.message?.toLowerCase().includes('permission')) {
+            setUserProfile({ __error: 'Permissão negada. Verifique regras/RLS do Supabase.' });
+          } else {
+            setUserProfile(null);
+          }
+        } else {
+          setUserProfile(profile);
+        }
+      } catch (err) {
+        console.error('fetchProfileByUid exception:', err);
+        if (mounted) setUserProfile(null);
       } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    async function init() {
+      setLoading(true);
+      try {
+        // Assíncrono: pega sessão atual
+        const sessionResp = await supabase.auth.getSession();
+        const uid = sessionResp?.data?.session?.user?.id || null;
+        if (uid) {
+          await fetchProfileByUid(uid);
+        } else {
+          setUserProfile(null);
+          setLoading(false);
+        }
+
+        // inscrito para mudanças de auth (login/logout)
+        if (supabase.auth && typeof supabase.auth.onAuthStateChange === 'function') {
+          subscription = supabase.auth.onAuthStateChange((_event, session) => {
+            const newUid = session?.user?.id || null;
+            if (newUid) fetchProfileByUid(newUid);
+            else {
+              setUserProfile(null);
+              setLoading(false);
+            }
+          });
+        }
+      } catch (err) {
+        console.error('init fetchProfile exception:', err);
+        setUserProfile(null);
         setLoading(false);
       }
+    }
+
+    init();
+
+    return () => {
+      mounted = false;
+      if (subscription && typeof subscription.unsubscribe === 'function') subscription.unsubscribe();
     };
-    fetchProfile();
   }, []);
 
   if (loading) return <div>Carregando perfil...</div>;
-  if (!userProfile) return <div>Usuário não encontrado.</div>;
+
+  if (!userProfile) {
+    return (
+      <div style={{ padding: 24, textAlign: 'center', color: '#fff' }}>
+        <p>Usuário não encontrado. Faça login.</p>
+        <Link to="/login">
+          <button style={{ padding: '8px 16px', borderRadius: 8, background: '#ffd700', border: 'none', cursor: 'pointer' }}>
+            Ir para Login
+          </button>
+        </Link>
+      </div>
+    );
+  }
+
+  // se profile contém erro amigável, exibe
+  if (userProfile.__error) {
+    return (
+      <div style={{ padding: 24, color: '#fff' }}>
+        <p style={{ color: '#ffd700', fontWeight: 700 }}>Atenção</p>
+        <p>{userProfile.__error}</p>
+        <p>Verifique: tabela "profiles" existe, RLS/policies, e a chave anon/permissões.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="profilepage-bg">
@@ -71,18 +148,14 @@ export default function ProfilePage() {
             )}
             <button
               className="profilepage-logoutbtn"
-              onClick={() => alert('Logout!')}
+              onClick={async () => {
+                await supabase.auth.signOut();
+                setUserProfile(null);
+                navigate('/login');
+              }}
             >
               Sair
             </button>
-            {userProfile.isProdutor && (
-              <button
-                className="profilepage-prodbtn"
-                onClick={() => navigate('/produtor')}
-              >
-                Ir para área de produtor
-              </button>
-            )}
           </div>
         </div>
       </div>

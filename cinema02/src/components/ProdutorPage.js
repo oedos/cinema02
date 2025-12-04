@@ -20,11 +20,19 @@ export default function ProdutorPage() {
   const [erroMedia, setErroMedia] = useState("");
   const [erroCapa, setErroCapa] = useState("");
 
-  // Carrega os filmes do produtor ao abrir a tela
+  // Carrega os filmes do produtor ao abrir a tela (usar Supabase)
   useEffect(() => {
     async function fetchFilmes() {
-      const { data, error } = await supabase.from('filmes').select('*').eq('produtorUid', userUID);
-      setFilmes(data || []);
+      try {
+        const { data, error } = await supabase
+          .from('filmes')
+          .select('*')
+          .eq('produtorUid', userUID);
+        if (error) throw error;
+        setFilmes(data || []);
+      } catch (err) {
+        console.error('Erro ao buscar filmes do produtor:', err);
+      }
     }
     fetchFilmes();
   }, []);
@@ -58,39 +66,40 @@ export default function ProdutorPage() {
     e.preventDefault();
     let mediaUrl = "";
     let capaUrl = "";
-    setErroMedia("");
-    setErroCapa("");
-    // Upload da mídia (imagem ou vídeo)
+
+    // Upload mídia (opcional)
     if (novoFilme.media) {
       try {
-        const path = `midias/${Date.now()}_${novoFilme.media.name}`;
-        const { error: uploadError } = await supabase.storage.from('midias').upload(path, novoFilme.media);
-        if (uploadError) throw uploadError;
-        const { data } = supabase.storage.from('midias').getPublicUrl(path);
-        mediaUrl = data.publicUrl;
+        const mediaPath = `midias/${Date.now()}_${novoFilme.media.name}`;
+        const { error: upErr } = await supabase.storage.from('midias').upload(mediaPath, novoFilme.media);
+        if (upErr) throw upErr;
+        const { data: publicData } = supabase.storage.from('midias').getPublicUrl(mediaPath);
+        mediaUrl = publicData?.publicUrl || publicData?.publicURL || "";
       } catch (err) {
-        setErroMedia("Erro ao enviar mídia. Verifique o tipo e tamanho do arquivo.");
-        console.error("Erro no upload da mídia:", err);
+        console.error("Erro upload mídia:", err);
+        setErroMedia("Erro ao enviar mídia.");
+        return;
+      }
+    }
+
+    // Upload capa (requerida)
+    if (novoFilme.capa) {
+      try {
+        const capaPath = `capas/${Date.now()}_${novoFilme.capa.name}`;
+        const { error: upErr } = await supabase.storage.from('capas').upload(capaPath, novoFilme.capa);
+        if (upErr) throw upErr;
+        const { data: publicData } = supabase.storage.from('capas').getPublicUrl(capaPath);
+        capaUrl = publicData?.publicUrl || publicData?.publicURL || "";
+      } catch (err) {
+        console.error("Erro upload capa:", err);
+        setErroCapa("Erro ao enviar capa.");
         return;
       }
     } else {
-      setErroMedia("Selecione uma imagem ou vídeo.");
+      setErroCapa("Selecione uma capa.");
       return;
     }
-    // Upload da capa (imagem)
-    if (novoFilme.capa) {
-      try {
-        const path = `capas/${Date.now()}_${novoFilme.capa.name}`;
-        const { error: uploadError } = await supabase.storage.from('capas').upload(path, novoFilme.capa);
-        if (uploadError) throw uploadError;
-        const { data } = supabase.storage.from('capas').getPublicUrl(path);
-        capaUrl = data.publicUrl;
-      } catch (err) {
-        setErroCapa("Erro ao enviar imagem de capa.");
-        console.error("Erro no upload da capa:", err);
-        return;
-      }
-    }
+
     const filmeParaSalvar = {
       titulo: novoFilme.titulo,
       descricao: novoFilme.descricao,
@@ -99,23 +108,17 @@ export default function ProdutorPage() {
       capaUrl,
       produtorUid: userUID
     };
+
     try {
-      // Insere o filme diretamente no Supabase
       const { error } = await supabase.from('filmes').insert([filmeParaSalvar]);
       if (error) throw error;
       setFilmes([...filmes, { id: Date.now(), ...filmeParaSalvar }]);
+      // limpa formulário
+      setNovoFilme({ titulo: "", descricao: "", media: null, mediaUrl: "", mediaType: "", capa: null, capaUrl: "" });
     } catch (err) {
+      console.error('Erro ao salvar filme no Supabase:', err);
       setErroMedia("Erro ao salvar filme no banco de dados.");
     }
-    setNovoFilme({
-      titulo: "",
-      descricao: "",
-      media: null,
-      mediaUrl: "",
-      mediaType: "",
-      capa: null,
-      capaUrl: ""
-    });
   }
 
   async function handleRemove(id) {

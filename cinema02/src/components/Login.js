@@ -15,14 +15,29 @@ export default function Login() {
     setErro(null);
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+      // supabase v2 retorna { data, error }
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
       if (error) {
         setErro("Email ou senha inválidos.");
-      } else {
-        setErro(null);
-        navigate("/home"); // Redireciona para Home ao logar com sucesso
+        setLoading(false);
+        return;
       }
-    } catch (error) {
+      // confirma sessão/usuário
+      const sessionUserId = data?.user?.id || data?.session?.user?.id || null;
+      if (!sessionUserId) {
+        // pode haver delay; buscar session explicitamente
+        const sessionResp = await supabase.auth.getSession();
+        const uid = sessionResp?.data?.session?.user?.id || null;
+        if (!uid) {
+          setErro("Não foi possível autenticar. Tente novamente.");
+          setLoading(false);
+          return;
+        }
+      }
+      // navega para a tela de perfil (assegure que rota exista)
+      navigate("/profile");
+    } catch (errorCatch) {
+      console.error("login error:", errorCatch);
       setErro("Erro ao fazer login.");
     }
     setLoading(false);

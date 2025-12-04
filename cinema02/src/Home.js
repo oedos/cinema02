@@ -17,8 +17,13 @@ const Home = () => {
 
   useEffect(() => {
     async function fetchFilmes() {
-      const { data, error } = await supabase.from('filmes').select('*');
-      if (!error) setFilmesProdutores(data || []);
+      try {
+        const { data, error } = await supabase.from('filmes').select('*');
+        if (error) throw error;
+        setFilmesProdutores(data || []);
+      } catch (err) {
+        console.error('Erro ao buscar filmes de produtores:', err);
+      }
     }
     fetchFilmes();
   }, []);
@@ -52,24 +57,7 @@ const Home = () => {
         {/* Filmes enviados pelos produtores */}
         {filmesProdutores.map(filme => (
           <li key={filme.id} className="filme-card">
-            {filme.imagemHome && filme.imagemHome.includes("drive.google.com") ? (
-              <img
-                src={`https://drive.google.com/uc?export=view&id=${filme.imagemHome.split("/d/")[1]?.split("/")[0]}`}
-                alt={filme.titulo}
-              />
-            ) : filme.imagemHome ? (
-              <img src={filme.imagemHome} alt={filme.titulo} />
-            ) : filme.capaUrl ? (
-              <img src={filme.capaUrl} alt={filme.titulo} />
-            ) : filme.mediaType === "image" && filme.mediaUrl ? (
-              <img src={filme.mediaUrl} alt={filme.titulo} />
-            ) : (
-              <img
-                src="/images/placeholder.png"
-                alt="Sem imagem"
-                style={{ width: "100%", maxWidth: 180, height: 240, objectFit: "cover", borderRadius: 8, marginBottom: "1rem", background: "#181818" }}
-              />
-            )}
+            <img src={filme.capaUrl || "/images/placeholder.png"} alt={filme.titulo} />
             <strong>{filme.titulo}</strong>
             <p>{filme.descricao}</p>
             <Link to={`/detalhe-produtor/${filme.id}`}>Ver detalhes</Link>

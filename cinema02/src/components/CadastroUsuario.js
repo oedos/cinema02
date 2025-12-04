@@ -10,15 +10,29 @@ export default function CadastroUsuario() {
   const [sucesso, setSucesso] = useState(null);
   const [tipo, setTipo] = useState("cliente");
 
+  // validação simples de email
+  function validateEmail(value) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(value);
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setSucesso(null);
 
+    // normaliza e valida o email
+    const emailNormalized = email.trim().toLowerCase();
+    if (!validateEmail(emailNormalized)) {
+      setSucesso("Email inválido. Verifique e tente novamente.");
+      setLoading(false);
+      return;
+    }
+
     try {
       // 1) cria usuário no Auth (envia email de confirmação conforme config do Supabase)
       const { data, error: signUpError } = await supabase.auth.signUp(
-        { email, password: senha },
+        { email: emailNormalized, password: senha },
         { data: { nome, tipo } } // metadata opcional
       );
       if (signUpError) throw signUpError;
@@ -32,7 +46,7 @@ export default function CadastroUsuario() {
           {
             id: userId,
             nome,
-            email,
+            email: emailNormalized,
             tipo,
             created_at: new Date().toISOString(),
           },
@@ -45,6 +59,7 @@ export default function CadastroUsuario() {
       setEmail("");
       setSenha("");
     } catch (err) {
+      // mostra mensagem mais explícita
       setSucesso("Erro ao cadastrar: " + (err.message || JSON.stringify(err)));
     }
     setLoading(false);
